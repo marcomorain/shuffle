@@ -5,12 +5,18 @@
 
 typedef kvec_t(char*) line_buffer;
 
-void read_lines(FILE* file, line_buffer* buffer) {
-  for (;;) {
-    char* line = NULL;
-    size_t length = 0;
-    ssize_t result = getline(&line, &length, file);
-    if (result < 0) break;
+static char* read_line(FILE* file) {
+  char* result = NULL;
+  size_t allocated = 0;
+  ssize_t length = getline(&result, &allocated, file);
+  if (length < 0) {
+    return NULL;
+  }
+  return result;
+}
+
+static void read_lines(FILE* file, line_buffer* buffer) {
+  for (char* line = read_line(file); line; line = read_line(file)) {
     kv_push(char*, *buffer, line);
   }
 }
@@ -22,7 +28,6 @@ static int compare(const void* a, const void* b) {
 int main(int argc, char** argv) {
   line_buffer buffer;
   kv_init(buffer);
-
   read_lines(stdin, &buffer);
   const int count = kv_size(buffer);
   sranddev();
