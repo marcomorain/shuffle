@@ -21,18 +21,25 @@ static void read_lines(FILE* file, line_buffer* buffer) {
   }
 }
 
-static int compare(const void* a, const void* b) {
-  return rand() - (RAND_MAX>>1);
+static void shuffle(line_buffer* lines) {
+  sranddev();
+  int n = kv_size(*lines);
+  for (int i = 0; i < n - 1; i++) {
+    int j = i + rand() / (RAND_MAX / (n - i) + 1);
+    char* t = kv_A(*lines, j);
+    kv_A(*lines, j) = kv_A(*lines, i);
+    kv_A(*lines, i) = t;
+  }
 }
 
 int main(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
   line_buffer buffer;
   kv_init(buffer);
   read_lines(stdin, &buffer);
-  const int count = kv_size(buffer);
-  sranddev();
-  heapsort(buffer.a, count, sizeof(char*), compare);
-  for (int i=0; i<count; i++) {
+  shuffle(&buffer);
+  for (size_t i=0; i<kv_size(buffer); i++) {
     fputs(kv_A(buffer, i), stdout);
   }
   return EXIT_SUCCESS;
