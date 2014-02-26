@@ -16,7 +16,8 @@ static char* read_line(FILE* file) {
 }
 
 static void read_lines(FILE* file, line_buffer* buffer) {
-  for (char* line = read_line(file); line; line = read_line(file)) {
+  char* line;
+  while((line = read_line(file)) != 0) {
     kv_push(char*, *buffer, line);
   }
 }
